@@ -12,9 +12,11 @@ out/
 build/
 dist/
 
-# Environment Variables
+# Environment Variables & Secrets
 .env
+.env.*
 .env*.local
+*.local
 !.env.example
 
 # Logs
