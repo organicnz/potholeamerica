@@ -3,8 +3,6 @@ import { civicRoute } from '@/server/routes/civic';
 import { Hono } from 'hono';
 import { handle } from 'hono/vercel';
 
-export const runtime = 'edge';
-
 const app = new Hono().basePath('/api');
 
 const routes = app.route('/cases', casesRoute).route('/civic', civicRoute);
