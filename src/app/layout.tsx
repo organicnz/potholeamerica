@@ -1,5 +1,6 @@
 import { MapPin, PlusCircle } from 'lucide-react';
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import './globals.css';
 
@@ -20,8 +21,15 @@ export default function RootLayout({
         {/* Navigation Bar */}
         <header className="sticky top-0 z-50 glass-panel border-b border-slate-800/80 px-6 py-3.5 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg shadow-amber-500/20 group-hover:scale-105 transition-transform">
-              🚧
+            <div className="w-10 h-10 rounded-xl overflow-hidden border border-amber-500/40 bg-slate-900 flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-105 transition-transform p-0.5">
+              <Image
+                src="/logo.png"
+                alt="Pothole America Crest"
+                width={40}
+                height={40}
+                className="w-full h-full object-cover rounded-lg"
+                priority
+              />
             </div>
             <div className="flex flex-col">
               <span className="font-extrabold text-base tracking-tight text-white flex items-center gap-1.5">

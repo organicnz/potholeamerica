@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { INITIAL_CASES } from '@/server/mock-data';
 import { ArrowRight, Eye, MapPin, ShieldCheck, Sparkles, Users } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 
 export default function HomePage() {
@@ -13,6 +14,19 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(245,158,11,0.15),rgba(255,255,255,0))]" />
 
         <div className="relative max-w-4xl mx-auto text-center space-y-6">
+          <div className="flex justify-center mb-4">
+            <div className="w-24 h-24 md:w-28 md:h-28 rounded-3xl overflow-hidden border-2 border-amber-500/40 shadow-2xl shadow-amber-500/25 bg-slate-950/90 p-1 hover:scale-105 transition-transform">
+              <Image
+                src="/logo.png"
+                alt="Pothole America Emblem"
+                width={112}
+                height={112}
+                className="w-full h-full object-cover rounded-2xl"
+                priority
+              />
+            </div>
+          </div>
+
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-wider mb-2">
             <Sparkles className="w-3.5 h-3.5" />
             Sacramento County Pilot Launch
