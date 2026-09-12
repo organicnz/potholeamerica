@@ -1,0 +1,10 @@
+pre-commit:
+  parallel: true
+  commands:
+    biome-format:
+      glob: "*.{js,ts,cjs,mjs,jsx,tsx,json}"
+      run: bunx biome check --write --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}
+      stage_fixed: true
+    oxlint:
+      glob: "*.{js,ts,jsx,tsx}"
+      run: bunx oxlint --deny-warnings {staged_files}

@@ -1,0 +1,13 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript"],
+  "categories": {
+    "correctness": "error",
+    "perf": "warn"
+  },
+  "rules": {
+    "no-unused-vars": "warn",
+    "react/jsx-key": "error",
+    "react-hooks/rules-of-hooks": "error"
+  }
+}
