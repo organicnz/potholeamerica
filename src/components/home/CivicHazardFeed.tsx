@@ -81,7 +81,7 @@ export function CivicHazardFeed() {
   return (
     <div className="w-full flex flex-col min-h-screen">
       {/* 1. Filter & Search Bar */}
-      <div className="sticky top-[61px] z-40 glass-panel border-b border-slate-800/80 bg-[#080c14]/95 backdrop-blur-md">
+      <div className="sticky top-[72px] z-40 glass-panel border-b border-slate-800/80 bg-[#080c14]/95 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col gap-3">
           {/* Top Search Pill */}
           <div className="flex items-center justify-between gap-4">
