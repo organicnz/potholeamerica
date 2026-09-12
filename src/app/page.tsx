@@ -1,4 +1,4 @@
-import { AirbnbPotholeFeed } from '@/components/home/AirbnbPotholeFeed';
+import { CivicHazardFeed } from '@/components/home/CivicHazardFeed';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <div className="flex-1 flex flex-col">
-      <AirbnbPotholeFeed />
+      <CivicHazardFeed />
     </div>
   );
 }

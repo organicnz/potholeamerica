@@ -7,7 +7,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 
-// Airbnb Category Tabs
+// Civic Hazard Category Tabs
 const CATEGORIES = [
   { id: 'POTHOLE', label: 'Potholes', icon: '🕳️', count: 9 },
   { id: 'SINKHOLE', label: 'Sinkholes', icon: '⚠️', count: 1 },
@@ -18,7 +18,7 @@ const CATEGORIES = [
   { id: 'ALL', label: 'All Hazards', icon: '📋', count: 12 },
 ];
 
-export function AirbnbPotholeFeed() {
+export function CivicHazardFeed() {
   const [activeCategory, setActiveCategory] = useState<string>('POTHOLE');
   const [cases, setCases] = useState<CaseRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,7 +53,7 @@ export function AirbnbPotholeFeed() {
 
       setCases(data);
     } catch (err) {
-      console.error('Failed to fetch potholes:', err);
+      console.error('Failed to fetch road hazards:', err);
     } finally {
       setLoading(false);
     }
@@ -80,7 +80,7 @@ export function AirbnbPotholeFeed() {
 
   return (
     <div className="w-full flex flex-col min-h-screen">
-      {/* 1. Airbnb-Style Filter & Search Bar */}
+      {/* 1. Filter & Search Bar */}
       <div className="sticky top-[61px] z-40 glass-panel border-b border-slate-800/80 bg-[#080c14]/95 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col gap-3">
           {/* Top Search Pill */}
@@ -113,7 +113,7 @@ export function AirbnbPotholeFeed() {
             </div>
           </div>
 
-          {/* Airbnb Category Tabs Row */}
+          {/* Category Navigation Tabs Row */}
           <div className="flex items-center gap-6 overflow-x-auto no-scrollbar pt-1 pb-1">
             {CATEGORIES.map((cat) => {
               const isActive = activeCategory === cat.id;
@@ -148,7 +148,7 @@ export function AirbnbPotholeFeed() {
         </div>
       </div>
 
-      {/* 2. Main Body: Airbnb Grid OR Map View */}
+      {/* 2. Main Body: Grid OR Map View */}
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         {viewMode === 'map' ? (
           /* Map View */
@@ -336,7 +336,7 @@ export function AirbnbPotholeFeed() {
         )}
       </main>
 
-      {/* 3. The Iconic Floating Airbnb "Show map" / "Show list" Button */}
+      {/* 3. Floating "Show map" / "Show list" Button */}
       <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
         <button
           type="button"
