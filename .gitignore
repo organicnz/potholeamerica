@@ -33,3 +33,5 @@ bun.lock*
 
 # Supabase
 .supabase/local/
+.vercel
+.env*
