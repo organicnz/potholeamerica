@@ -11,13 +11,13 @@ export interface HazardCategory {
 }
 
 export const HAZARD_CATEGORIES: HazardCategory[] = [
+  { id: 'ALL', label: 'All Hazards', icon: '📋', count: 12 },
   { id: 'POTHOLE', label: 'Potholes', icon: '🕳️', count: 9 },
   { id: 'SINKHOLE', label: 'Sinkholes', icon: '⚠️', count: 1 },
   { id: 'CRACKED_ROAD', label: 'Cracked Asphalt', icon: '⚡', count: 1 },
   { id: 'MANHOLE', label: 'Manhole & Utility', icon: '🛡️', count: 1 },
   { id: 'OVERDUE', label: 'Overdue Cases', icon: '⏱️', count: 1 },
   { id: 'RESOLVED', label: 'Verified Fixed', icon: '✅', count: 2 },
-  { id: 'ALL', label: 'All Hazards', icon: '📋', count: 12 },
 ];
 
 interface CategoryContextType {
@@ -30,7 +30,7 @@ interface CategoryContextType {
 const CategoryContext = createContext<CategoryContextType | undefined>(undefined);
 
 export function CategoryProvider({ children }: { children: React.ReactNode }) {
-  const [activeCategory, setActiveCategory] = useState<string>('POTHOLE');
+  const [activeCategory, setActiveCategory] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   return (
