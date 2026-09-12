@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { INITIAL_CASES } from '@/server/mock-data';
 import { ImageResponse } from 'next/og';
 
@@ -11,6 +13,12 @@ interface Props {
 export default async function Image({ params }: Props) {
   const { publicId } = await params;
   const caseItem = INITIAL_CASES.find((c) => c.public_id === publicId);
+
+  let logoBase64 = '';
+  try {
+    const logoBuffer = fs.readFileSync(path.join(process.cwd(), 'public/favicon-32x32.png'));
+    logoBase64 = `data:image/png;base64,${logoBuffer.toString('base64')}`;
+  } catch {}
 
   return new ImageResponse(
     <div
@@ -27,9 +35,19 @@ export default async function Image({ params }: Props) {
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: '36px' }}>🚧</span>
-          <span style={{ fontSize: '28px', fontWeight: 'bold', color: '#f59e0b' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          {logoBase64 ? (
+            <img
+              src={logoBase64}
+              width="48"
+              height="48"
+              alt="Pothole America Logo"
+              style={{ borderRadius: '12px', border: '1px solid rgba(245, 158, 11, 0.4)' }}
+            />
+          ) : (
+            <span style={{ fontSize: '36px' }}>🚧</span>
+          )}
+          <span style={{ fontSize: '32px', fontWeight: 'bold', color: '#f59e0b' }}>
             Pothole America
           </span>
         </div>

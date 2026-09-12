@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { CaseRecord } from '@/types/database.types';
 import { AlertTriangle, ArrowRight, Camera, MapPin } from 'lucide-react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -59,16 +60,16 @@ export function ReportWizard() {
         );
         setStep(3); // Show duplicate detection
       } else {
-        setStep(4); // Skip straight to severity/details
+        setStep(4); // Skip to publish details
       }
     } catch {
       setStep(4);
     }
   };
 
-  // Step 4: Publish Case
-  const handlePublish = async () => {
-    if (!title) return;
+  // Step 4: Final Submit
+  const handlePublish = async (e: React.FormEvent) => {
+    e.preventDefault();
     setSubmitting(true);
 
     try {
@@ -76,13 +77,12 @@ export function ReportWizard() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          title,
+          title: title || 'Reported Road Defect',
           description,
-          address,
           lat,
           lng,
+          address,
           severity,
-          category: 'POTHOLE',
         }),
       });
 
@@ -100,6 +100,22 @@ export function ReportWizard() {
 
   return (
     <div className="max-w-xl mx-auto py-8 px-4">
+      {/* Brand Header */}
+      <div className="flex items-center justify-center gap-2 mb-6">
+        <div className="w-8 h-8 rounded-xl overflow-hidden border border-amber-500/40 bg-slate-900 p-0.5 shadow-md">
+          <Image
+            src="/logo.png"
+            alt="Pothole America Logo"
+            width={32}
+            height={32}
+            className="w-full h-full object-cover rounded-lg"
+          />
+        </div>
+        <span className="font-extrabold text-slate-200 tracking-tight text-sm">
+          Pothole America Field Report
+        </span>
+      </div>
+
       {/* Step Indicator */}
       <div className="flex items-center justify-between mb-8 text-xs font-semibold text-slate-400">
         <span className={step >= 1 ? 'text-amber-400' : ''}>1. Photo</span>
