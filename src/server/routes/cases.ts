@@ -1,10 +1,11 @@
+import { supabaseServer } from '@/lib/supabase/server';
 import type { CaseRecord } from '@/types/database.types';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { INITIAL_CASES, INITIAL_EVENTS } from '../mock-data';
 
-// In-memory active cases list initialized from mock data
+// In-memory fallback cases list initialized from mock data
 let casesStore: CaseRecord[] = [...INITIAL_CASES];
 const eventsStore = [...INITIAL_EVENTS];
 
@@ -22,33 +23,128 @@ const createCaseSchema = z.object({
   lat: z.number().min(-90).max(90),
   lng: z.number().min(-180).max(180),
   severity: z.enum(['MINOR', 'SIGNIFICANT', 'DANGEROUS']).default('SIGNIFICANT'),
+  photo_url: z.string().optional(),
 });
 
 export const casesRoute = new Hono()
-  // List cases (supports spatial bounding or nearby search)
+  // List cases dynamically from database
   .get(
     '/',
     zValidator(
       'query',
       z.object({
-        lng: z.coerce.number().optional(),
-        lat: z.coerce.number().optional(),
-        radius: z.coerce.number().optional(),
+        category: z.string().optional(),
         status: z.string().optional(),
+        search: z.string().optional(),
+        limit: z.coerce.number().optional().default(50),
       })
     ),
-    (c) => {
-      const { status } = c.req.valid('query');
-      let results = [...casesStore];
+    async (c) => {
+      const { category, status, search, limit } = c.req.valid('query');
 
-      if (status) {
+      try {
+        const filterCat = category && category !== 'ALL' ? category : null;
+        const filterStat = status && status !== 'ALL' ? status : null;
+
+        const { data, error } = await supabaseServer.rpc('get_cases_feed', {
+          filter_category: filterCat,
+          filter_status: filterStat,
+          limit_count: limit,
+          offset_count: 0,
+        });
+
+        if (!error && data && data.length > 0) {
+          interface FeedRow {
+            id: string;
+            public_id: string;
+            title: string;
+            description: string | null;
+            category: string;
+            lat: number;
+            lng: number;
+            address: string;
+            community_status: CaseRecord['community_status'];
+            official_status: CaseRecord['official_status'];
+            severity: CaseRecord['severity'];
+            confirmation_count: number;
+            follower_count: number;
+            comment_count: number;
+            photo_url: string | null;
+            created_at: string;
+            submitted_at: string | null;
+            resolved_at: string | null;
+          }
+
+          let formatted: CaseRecord[] = (data as FeedRow[]).map((row) => ({
+            id: row.id,
+            public_id: row.public_id,
+            reporter_id: null,
+            jurisdiction_id: null,
+            agency_id: null,
+            title: row.title,
+            description: row.description,
+            category: row.category,
+            location: {
+              lat: row.lat,
+              lng: row.lng,
+            },
+            address: row.address,
+            community_status: row.community_status,
+            official_status: row.official_status,
+            severity: row.severity,
+            confirmation_count: row.confirmation_count,
+            follower_count: row.follower_count,
+            comment_count: row.comment_count,
+            photo_url: row.photo_url,
+            created_at: row.created_at,
+            submitted_at: row.submitted_at,
+            resolved_at: row.resolved_at,
+          }));
+
+          if (search) {
+            const q = search.toLowerCase();
+            formatted = formatted.filter(
+              (item) =>
+                item.title.toLowerCase().includes(q) ||
+                item.address.toLowerCase().includes(q) ||
+                item.public_id.toLowerCase().includes(q)
+            );
+          }
+
+          return c.json({
+            success: true,
+            data: formatted,
+            total: formatted.length,
+            source: 'supabase_edge',
+          });
+        }
+      } catch (err) {
+        console.error('Failed to query Supabase cases:', err);
+      }
+
+      // Fallback to in-memory store
+      let results = [...casesStore];
+      if (category && category !== 'ALL') {
+        results = results.filter((item) => item.category === category);
+      }
+      if (status && status !== 'ALL') {
         results = results.filter((item) => item.community_status === status);
+      }
+      if (search) {
+        const q = search.toLowerCase();
+        results = results.filter(
+          (item) =>
+            item.title.toLowerCase().includes(q) ||
+            item.address.toLowerCase().includes(q) ||
+            item.public_id.toLowerCase().includes(q)
+        );
       }
 
       return c.json({
         success: true,
         data: results,
         total: results.length,
+        source: 'in_memory_fallback',
       });
     }
   )

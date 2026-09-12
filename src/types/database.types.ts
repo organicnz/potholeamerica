@@ -37,6 +37,7 @@ export interface CaseRecord {
   confirmation_count: number;
   follower_count: number;
   comment_count: number;
+  photo_url?: string | null;
   created_at: string;
   submitted_at: string | null;
   resolved_at: string | null;
