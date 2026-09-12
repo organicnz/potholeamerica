@@ -1,4 +1,5 @@
 import { NavHeader } from '@/components/navigation/NavHeader';
+import { CategoryProvider } from '@/context/CategoryContext';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import './globals.css';
@@ -26,10 +27,12 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className="min-h-screen flex flex-col bg-[#080c14] text-slate-100 selection:bg-amber-500 selection:text-slate-950">
-        <NavHeader />
+        <CategoryProvider>
+          <NavHeader />
 
-        {/* Content Body */}
-        <div className="flex-1 flex flex-col">{children}</div>
+          {/* Content Body */}
+          <div className="flex-1 flex flex-col">{children}</div>
+        </CategoryProvider>
 
         {/* Footer */}
         <footer className="glass-panel border-t border-slate-800/60 py-8 px-6 text-center text-xs text-slate-500">

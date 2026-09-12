@@ -1,29 +1,18 @@
 'use client';
 
 import { CivicMap } from '@/components/map/CivicMap';
+import { HAZARD_CATEGORIES, useCategory } from '@/context/CategoryContext';
 import type { CaseRecord } from '@/types/database.types';
-import { Heart, List, Map as MapIcon, Search } from 'lucide-react';
+import { Heart, List, Map as MapIcon } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 
-// Civic Hazard Category Tabs
-const CATEGORIES = [
-  { id: 'POTHOLE', label: 'Potholes', icon: '🕳️', count: 9 },
-  { id: 'SINKHOLE', label: 'Sinkholes', icon: '⚠️', count: 1 },
-  { id: 'CRACKED_ROAD', label: 'Cracked Asphalt', icon: '⚡', count: 1 },
-  { id: 'MANHOLE', label: 'Manhole & Utility', icon: '🛡️', count: 1 },
-  { id: 'OVERDUE', label: 'Overdue Cases', icon: '⏱️', count: 1 },
-  { id: 'RESOLVED', label: 'Verified Fixed', icon: '✅', count: 2 },
-  { id: 'ALL', label: 'All Hazards', icon: '📋', count: 12 },
-];
-
 export function CivicHazardFeed() {
-  const [activeCategory, setActiveCategory] = useState<string>('POTHOLE');
+  const { activeCategory, searchQuery } = useCategory();
   const [cases, setCases] = useState<CaseRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
-  const [searchQuery, setSearchQuery] = useState('');
   const [confirmedIds, setConfirmedIds] = useState<Record<string, number>>({});
 
   // Fetch cases dynamically from Edge API (connected to Supabase)
@@ -78,78 +67,12 @@ export function CivicHazardFeed() {
     }
   };
 
+  const currentCategoryMeta = HAZARD_CATEGORIES.find((c) => c.id === activeCategory);
+
   return (
     <div className="w-full flex flex-col min-h-screen">
-      {/* 1. Filter & Search Bar */}
-      <div className="sticky top-[72px] z-40 glass-panel border-b border-slate-800/80 bg-[#080c14]/95 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col gap-3">
-          {/* Top Search Pill */}
-          <div className="flex items-center justify-between gap-4">
-            <div className="relative flex-1 max-w-xl mx-auto md:mx-0">
-              <div className="flex items-center rounded-full border border-slate-700/80 bg-slate-900/90 shadow-lg px-4 py-2 hover:border-amber-500/50 transition-all">
-                <Search className="w-4 h-4 text-slate-400 mr-3 shrink-0" />
-                <input
-                  type="text"
-                  placeholder="Search by street (e.g. Broadway, J Street) or ID (PA-001824)..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-transparent text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none w-full"
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery('')}
-                    className="text-xs text-slate-400 hover:text-slate-200 ml-2"
-                  >
-                    Clear
-                  </button>
-                )}
-              </div>
-            </div>
-
-            <div className="hidden md:flex items-center gap-2 text-xs text-slate-400 font-medium">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Sacramento Pilot (Live Edge Feed)</span>
-            </div>
-          </div>
-
-          {/* Category Navigation Tabs Row */}
-          <div className="flex items-center gap-6 overflow-x-auto no-scrollbar pt-1 pb-1">
-            {CATEGORIES.map((cat) => {
-              const isActive = activeCategory === cat.id;
-              return (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => setActiveCategory(cat.id)}
-                  className={`flex flex-col items-center gap-1.5 pb-2 border-b-2 transition-all shrink-0 cursor-pointer group ${
-                    isActive
-                      ? 'border-amber-400 text-slate-100'
-                      : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-700'
-                  }`}
-                >
-                  <span className="text-xl group-hover:scale-110 transition-transform">
-                    {cat.icon}
-                  </span>
-                  <span className="text-xs font-bold tracking-tight whitespace-nowrap flex items-center gap-1">
-                    {cat.label}
-                    <span
-                      className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-semibold ${
-                        isActive ? 'bg-amber-400/20 text-amber-300' : 'bg-slate-800 text-slate-400'
-                      }`}
-                    >
-                      {cat.count}
-                    </span>
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* 2. Main Body: Grid OR Map View */}
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      {/* Main Body: Grid OR Map View */}
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
         {viewMode === 'map' ? (
           /* Map View */
           <div className="w-full h-[75vh] rounded-3xl overflow-hidden border border-slate-800 shadow-2xl relative">
@@ -160,9 +83,10 @@ export function CivicHazardFeed() {
           <>
             {/* Header info row */}
             <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
+                <span className="text-2xl">{currentCategoryMeta?.icon || '🕳️'}</span>
                 <h2 className="text-xl md:text-2xl font-black text-slate-100 tracking-tight">
-                  {CATEGORIES.find((c) => c.id === activeCategory)?.label || 'Road Defects'}
+                  {currentCategoryMeta?.label || 'Road Defects'}
                 </h2>
                 <span className="text-xs font-mono font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-0.5 rounded-full">
                   {loading ? 'Fetching...' : `${cases.length} active cases`}
@@ -193,8 +117,9 @@ export function CivicHazardFeed() {
                 <span className="text-4xl mb-3 block">🚧</span>
                 <h3 className="text-lg font-bold text-slate-100 mb-1">No reported hazards here</h3>
                 <p className="text-xs text-slate-400 mb-6">
-                  No active cases found in this category for Sacramento. Be the first to document
-                  one!
+                  {searchQuery
+                    ? `No cases match "${searchQuery}" in this category.`
+                    : 'No active cases found in this category for Sacramento. Be the first to document one!'}
                 </p>
                 <Link
                   href="/report"
@@ -336,7 +261,7 @@ export function CivicHazardFeed() {
         )}
       </main>
 
-      {/* 3. Floating "Show map" / "Show list" Button */}
+      {/* Floating "Show map" / "Show list" Button */}
       <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
         <button
           type="button"
