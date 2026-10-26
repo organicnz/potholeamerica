@@ -9,13 +9,23 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   verify-and-deploy:
     name: Verify & Deploy
-    runs-on: ubuntu-latest
+    # Trusted work can use any remote Linux VPS; fork PRs stay isolated on GitHub.
+    runs-on: >-
+      ${{ (github.event_name == 'pull_request_target' ||
+           (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository))
+          && 'ubuntu-latest' || fromJSON('["self-hosted","Linux"]') }}
+    timeout-minutes: 30
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -38,9 +48,9 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
-          bunx vercel pull --yes --environment=production --token=$VERCEL_TOKEN
-          bunx vercel build --prod --token=$VERCEL_TOKEN
-          bunx vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
+          bunx vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+          bunx vercel build --prod --token="$VERCEL_TOKEN"
+          bunx vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
 
       - name: Deploy to Vercel (Preview)
         if: github.event_name == 'pull_request'
@@ -49,6 +59,6 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
-          bunx vercel pull --yes --environment=preview --token=$VERCEL_TOKEN
-          bunx vercel build --token=$VERCEL_TOKEN
-          bunx vercel deploy --prebuilt --token=$VERCEL_TOKEN
+          bunx vercel pull --yes --environment=preview --token="$VERCEL_TOKEN"
+          bunx vercel build --token="$VERCEL_TOKEN"
+          bunx vercel deploy --prebuilt --token="$VERCEL_TOKEN"
